@@ -1,3 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto
-.venv
+.venv/ text eol=lf
+.gitignore text eol=lf
+.gitattributes text eol=lf
