@@ -1,0 +1,8 @@
+{
+    "models": [
+        {
+            "model": "foo",
+            "base_url": "http://foo.bar"
+        }
+    ]
+}

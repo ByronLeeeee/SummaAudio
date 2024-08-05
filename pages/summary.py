@@ -2,6 +2,9 @@ import streamlit as st
 from scripts.ollama_scripts import generate
 import configparser
 import pyperclip
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 config = configparser.ConfigParser()
 config.read("config/config.ini",encoding="utf-8")

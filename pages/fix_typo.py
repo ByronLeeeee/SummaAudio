@@ -1,8 +1,10 @@
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import streamlit as st
 import configparser
 from scripts.ollama_scripts import generate
 import pyperclip
-import difflib
 
 config = configparser.ConfigParser()
 config.read('config.ini',encoding='utf-8')
