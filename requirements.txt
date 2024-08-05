@@ -2,3 +2,5 @@ streamlit
 ollama
 modelscope
 pyperclip
+openai
+python-dotenv
