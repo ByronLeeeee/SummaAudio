@@ -1,0 +1,21 @@
+{
+    "models": [
+        {
+            "model": "iic/speech_paraformer-large-vad-punc-spk_asr_nat-zh-cn",
+            "revision": "v2.0.4"
+        }
+    ],
+    "vad_models":[
+        {
+            "model": "iic/speech_fsmn_vad_zh-cn-16k-common-pytorch",
+            "revision": "v2.0.4"
+        }
+    ],
+    "punc_models":[
+        {
+            "model": "iic/punc_ct-transformer_cn-en-common-vocab471067-large",
+            "revision": "v2.0.4"
+        }
+    ]
+
+}

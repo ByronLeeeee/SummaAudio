@@ -4,3 +4,9 @@ modelscope
 pyperclip
 openai
 python-dotenv
+funasr
+addict
+datasets
+torch
+pybind11>2.12
+numpy<2

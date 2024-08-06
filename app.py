@@ -9,6 +9,7 @@ summary_page = st.Page("pages/summary.py",title="文本归纳")
 setting_page = st.Page("pages/setting.py",title="设置",icon=":material/settings:")
 prompt_manager_page = st.Page("pages/prompts_manager.py",title="提示词管理",icon="📝")
 
+
 pg = st.navigation({
     "首页": [home_page],
     "一键转录":[one_click_transcription_page],

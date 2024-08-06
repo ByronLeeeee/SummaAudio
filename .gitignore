@@ -1,7 +1,5 @@
 /.venv
-pages/__pycache__/__init__.cpython-310.pyc
-scripts/__pycache__/__init__.cpython-310.pyc
-scripts/__pycache__/modelscope_scripts.cpython-310.pyc
-scripts/__pycache__/ollama_scripts.cpython-310.pyc
+pages/__pycache__/
+scripts/__pycache__/
 .env
-scripts/__pycache__/openai_scripts.cpython-310.pyc
+cache/
