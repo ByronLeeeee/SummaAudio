@@ -47,22 +47,9 @@ def rewrite_data(updated_data):
 data = json_load()
 
 # 创建标签页
-summary_tab, fix_tab, meeting_tab = st.tabs(["归纳", "修正", "会议记录"])
+fix_tab,summary_tab,  meeting_tab = st.tabs(["修正","归纳",  "会议记录"])
 
 # 在每个标签页中创建数据编辑器
-with summary_tab:
-    st_editor = st.data_editor(
-        data["summary_prompt"],
-        num_rows="dynamic",
-        use_container_width=True,
-        key="summary",
-        column_config={
-            "title": st.column_config.TextColumn(
-                "提示词标题", help="请输入标题，确保每个标题都是唯一的。"
-            ),
-            "content": st.column_config.TextColumn("提示词", help="请输入提示词。"),
-        },
-    )
 
 with fix_tab:
     ft_editor = st.data_editor(
@@ -77,6 +64,23 @@ with fix_tab:
             "content": st.column_config.TextColumn("提示词", help="请输入提示词。"),
         },
     )
+
+
+with summary_tab:
+    st_editor = st.data_editor(
+        data["summary_prompt"],
+        num_rows="dynamic",
+        use_container_width=True,
+        key="summary",
+        column_config={
+            "title": st.column_config.TextColumn(
+                "提示词标题", help="请输入标题，确保每个标题都是唯一的。"
+            ),
+            "content": st.column_config.TextColumn("提示词", help="请输入提示词。"),
+        },
+    )
+
+
 
 with meeting_tab:
     mt_editor = st.data_editor(

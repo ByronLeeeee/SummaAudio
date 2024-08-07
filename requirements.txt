@@ -7,6 +7,10 @@ python-dotenv
 funasr
 addict
 datasets
+pybind11
+numpy
+simplejson
+sortedcontainers
+torchaudio
 torch
-pybind11>2.12
-numpy<2
+rotary_embedding_torch

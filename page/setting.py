@@ -35,14 +35,11 @@ with system_setting:
 with modelscope_setting:
     modelscope_cache_path = st.text_input(
         "缓存路径", config['MODELSCOPE']['MODELSCOPE_CACHE'])
-    modelscope_model_path = st.text_input(
-        "模型保存路径", config['MODELSCOPE']['MODELSCOPE_MODULES_CACHE'])
     output_path = st.text_input("结果输出路径", config['MODELSCOPE']['output_dir'])
 
     if st.button("保存Modelscope配置"):
         try:
             config['MODELSCOPE']['MODELSCOPE_CACHE'] = modelscope_cache_path
-            config['MODELSCOPE']['MODELSCOPE_MODULES_CACHE'] = modelscope_model_path
             config['MODELSCOPE']['output_dir'] = output_path
             with open("config/config.ini", "w", encoding='utf-8') as configfile:
                 config.write(configfile)

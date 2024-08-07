@@ -5,6 +5,22 @@ import json
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from scripts.modelscope_scripts import *
 from scripts.utils import load_config
+import re
+
+
+@st.dialog("聊天模式")
+def create_chat_messages(text):
+    # 分割文本为单独的对话部分
+    parts = re.split(r'(说话人\d+:\s*)', text)
+    
+    for i in range(1, len(parts), 2):
+        speaker = parts[i].strip()[:-1]  # 移除冒号
+        content = parts[i+1].strip()
+        
+        # 动态创建 st.chat_message
+        with st.chat_message(speaker):
+            st.write(content)
+
 
 def get_modelscope_config():
     return load_config("MODELSCOPE")
@@ -37,13 +53,20 @@ if audio_file:
     st.write("音频预览")
     st.audio(audio_file)
     if st.button("开始识别"):
-        result = recognition(audio_file, model_selector, model_revision, vad_model_selector, vad_model_revision, punc_model_selector, punc_model_revision)
-        full_text,spk_text = organise_recognition(result)
-        col1, col2 = st.columns(2)
-        with col1:
-            st.write("完整识别结果")
-            st.write(full_text)
-        with col2:
-            st.write("分段识别结果")
-            st.write(spk_text)
+        with open(f'cache/{audio_file.name}', 'wb') as f:
+            f.write(audio_file.getbuffer())
+            audio_file_path = f'cache/{audio_file.name}'
+        with st.spinner("识别中..."):
+            result = recognition(audio_in=audio_file_path, model=model_selector, model_revision=model_revision, vad_model=vad_model_selector, vad_model_revision=vad_model_revision, punc_model=punc_model_selector, punc_model_revision=punc_model_revision)
+            full_text,spk_text = organise_recognition(result)
+            col1, col2 = st.columns(2)
+            with col1:
+                with st.expander("完整识别结果"):
+                    st.write(full_text)
+            with col2:
+                with st.expander("带说话人识别结果"):
+                    st.write(spk_text)
+                with st.expander("聊天模式识别结果"):
+                    create_chat_messages(spk_text)
+            os.remove(audio_file_path)
 
