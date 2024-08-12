@@ -20,7 +20,7 @@ def get_model_list():
     return models
 
 
-def generate(prompt: str):
+def grenerate(prompt: str):
     try:
         config = get_config()
         base = config["base_url"]

@@ -4,8 +4,9 @@ import pyperclip
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from scripts.ollama_scripts import generate
-from scripts.utils import get_prompts_details, copy_text
+from scripts.ollama_scripts import grenerate as ollama_grenerate
+from scripts.openai_scripts import grenerate as openai_grenerate
+from scripts.utils import get_prompts_details, copy_text,load_config
 
 st.subheader("文本归纳")
 
@@ -50,6 +51,9 @@ with st.container():
                 final_prompt = using_prompt_textarea + text
             else:
                 final_prompt = text
-            respone = st.write_stream(generate(final_prompt))
+            if load_config("SYSTEM")['llm_mode'] == 'ollama':
+                respone = st.write_stream(ollama_grenerate(final_prompt))
+            elif load_config("SYSTEM")['llm_mode'] == 'openai':
+                respone = st.write_stream(openai_grenerate(final_prompt))
             st.session_state['sm_result'] = respone
         st.button("复制结果", on_click=copy_text, args=(respone,))

@@ -16,6 +16,12 @@
             "model": "iic/punc_ct-transformer_cn-en-common-vocab471067-large",
             "revision": "v2.0.4"
         }
+    ],
+    "speaker_models":[
+        {
+            "model": "iic/speech_campplus_sv_zh-cn_16k-common",
+            "revision": "v2.0.2"
+        }
     ]
 
 }

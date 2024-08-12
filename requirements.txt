@@ -11,6 +11,4 @@ pybind11
 numpy
 simplejson
 sortedcontainers
-torchaudio
-torch
 rotary_embedding_torch
