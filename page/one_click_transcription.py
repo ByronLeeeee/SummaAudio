@@ -96,6 +96,7 @@ with st.container(border=True):
             oc_audio_re()
             oc_ft(typo_prompt_lists,typo_prompt_seletor)
             oc_sm(prompt_lists,prompt_seletor)
+            os.remove(audio_file_path)
     
     if st.session_state.oc_audio_text != "":
         new_oc_audio_text = st.text_area("结果预览", value=st.session_state.oc_audio_text)
