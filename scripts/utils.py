@@ -3,6 +3,7 @@ import streamlit as st
 import pyperclip
 import configparser
 
+
 JSON_PATH = 'config/prompts.json'
 
 
@@ -28,3 +29,5 @@ def load_config(section: str):
     config = configparser.ConfigParser()
     config.read('config/config.ini', encoding='utf-8')
     return config[section]
+
+

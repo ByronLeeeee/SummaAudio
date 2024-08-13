@@ -3,8 +3,9 @@ import streamlit as st
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from scripts.utils import get_prompts_details, copy_text
-from scripts.ollama_scripts import generate
+from scripts.utils import get_prompts_details, copy_text,load_config
+from scripts.ollama_scripts import grenerate as ollama_grenerate
+from scripts.openai_scripts import grenerate as openai_grenerate
 
 config = configparser.ConfigParser()
 config.read('config.ini', encoding='utf-8')
@@ -43,6 +44,9 @@ with st.container():
     if fix_btn:
         with st.spinner('修正中...'):
             final_prompt = using_prompt_textarea + text
-            respone = st.write_stream(generate(final_prompt))
+            if load_config("SYSTEM")['llm_mode'] == 'ollama':
+                respone = st.write_stream(ollama_grenerate(final_prompt))
+            elif load_config("SYSTEM")['llm_mode'] == 'openai':
+                respone = st.write_stream(openai_grenerate(final_prompt))
             st.session_state['ft_result'] = respone
         st.button("复制结果", on_click=copy_text, args=(respone,))

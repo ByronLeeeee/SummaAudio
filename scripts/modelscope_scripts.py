@@ -4,6 +4,7 @@ from modelscope.pipelines import pipeline
 import sys
 import json
 import os
+import streamlit as st
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
@@ -11,7 +12,7 @@ def get_MODELSCOPE_config():
     return load_config('MODELSCOPE')
 
 
-def recognition(audio_in, model, model_revision, vad_model, vad_model_revision, punc_model, punc_model_revision) -> list:
+def recognition(audio_in, model, model_revision, vad_model, vad_model_revision, punc_model, punc_model_revision,spk_model,spk_model_revision) -> list:
     os.environ["MODELSCOPE_CACHE"] = get_MODELSCOPE_config()[
         "MODELSCOPE_CACHE"]
 
@@ -21,6 +22,7 @@ def recognition(audio_in, model, model_revision, vad_model, vad_model_revision, 
         model_revision=model_revision,
         vad_model=vad_model, vad_model_revision=vad_model_revision,
         punc_model=punc_model, punc_model_revision=punc_model_revision,
+        spk_model=spk_model, spk_model_revision=spk_model_revision,
 
     )
     rec_result = inference_pipeline(audio_in)
@@ -85,3 +87,23 @@ def get_modelscope_model_list():
         punc_model_list = model_info["punc_models"]
         speaker_model_list = model_info["speaker_models"]
     return model_list, vad_model_list, punc_model_list, speaker_model_list
+
+def modolscope_model_selector():
+    audio_models = get_modelscope_model_list()
+    model_selector = st.selectbox(
+        "选择模型", [model["model"] for model in audio_models[0]])
+    model_revision = st.write(
+        f"{next(model for model in audio_models[0] if model['model'] == model_selector)['revision']}")
+    vad_model_selector = st.selectbox(
+        "选择VAD模型", [model["model"] for model in audio_models[1]])
+    vad_model_revision = st.write(
+        f"{next(model for model in audio_models[1] if model['model'] == vad_model_selector)['revision']}")
+    punc_model_selector = st.selectbox(
+        "选择PUNC模型", [model["model"] for model in audio_models[2]])
+    punc_model_revision = st.write(
+        f"{next(model for model in audio_models[2] if model['model'] == punc_model_selector)['revision']}")
+    speaker_model_selector = st.selectbox(
+        "选择说话人模型", [model["model"] for model in audio_models[3]])
+    speaker_model_revision = st.write(
+        f"{next(model for model in audio_models[3] if model['model'] == speaker_model_selector)['revision']}")
+    return model_selector, model_revision, vad_model_selector, vad_model_revision, punc_model_selector, punc_model_revision, speaker_model_selector, speaker_model_revision
