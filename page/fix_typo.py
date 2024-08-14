@@ -4,8 +4,8 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from scripts.utils import get_prompts_details, copy_text,load_config
-from scripts.ollama_scripts import grenerate as ollama_grenerate
-from scripts.openai_scripts import grenerate as openai_grenerate
+from scripts.ollama_scripts import generate as ollama_generate
+from scripts.openai_scripts import generate as openai_generate
 
 config = configparser.ConfigParser()
 config.read('config.ini', encoding='utf-8')
@@ -45,8 +45,8 @@ with st.container():
         with st.spinner('修正中...'):
             final_prompt = using_prompt_textarea + text
             if load_config("SYSTEM")['llm_mode'] == 'ollama':
-                respone = st.write_stream(ollama_grenerate(final_prompt))
+                respone = st.write_stream(ollama_generate(final_prompt))
             elif load_config("SYSTEM")['llm_mode'] == 'openai':
-                respone = st.write_stream(openai_grenerate(final_prompt))
+                respone = st.write_stream(openai_generate(final_prompt))
             st.session_state['ft_result'] = respone
         st.button("复制结果", on_click=copy_text, args=(respone,))

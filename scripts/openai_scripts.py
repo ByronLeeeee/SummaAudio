@@ -32,7 +32,7 @@ def get_model_list():
     return models
 
 
-def grenerate(prompt: str, model_name: str):
+def generate(prompt: str, model_name: str):
     client = set_openai_client(model_name)
     config = configparser.ConfigParser()
     config.read("config/config.ini",encoding="utf-8")

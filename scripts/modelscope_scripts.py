@@ -59,7 +59,7 @@ def organise_recognition(result: list):
     return full_text, organise_text
 
 
-def save_output_result(full_text: str, organise_text: str, output_file: str):
+def save_output_result(full_text: str, organise_text: str, output_file: str,mode='normal'):
 
     try:
         output_path = get_MODELSCOPE_config()['output_dir']
@@ -72,7 +72,11 @@ def save_output_result(full_text: str, organise_text: str, output_file: str):
                 f.write(full_text)
 
         if organise_text != "":
-            with open(f'{output_path}/{output_file}/分说话人.txt', 'w', encoding='utf-8') as f:
+            if mode == 'normal':
+                txt_name = '分说话人'
+            if mode == 'one_click':
+                txt_name = '归纳'
+            with open(f'{output_path}/{output_file}/{txt_name}.txt', 'w', encoding='utf-8') as f:
                 f.write(organise_text)
 
         return True
