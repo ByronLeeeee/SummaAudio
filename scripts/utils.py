@@ -31,20 +31,50 @@ def load_config(section: str):
     config.read('config/config.ini', encoding='utf-8')
     return config[section]
 
+import logging
+
+import logging
+import os
+
 def setup_logger(name, log_file='logger/log.log', level=logging.INFO):
     """Function to create a logging object and set the level."""
+    
+    # 参数验证
+    if not isinstance(name, str) or not isinstance(log_file, str) or not isinstance(level, int):
+        raise ValueError("Invalid parameter type.")
+    
+    # 确保日志文件所在的目录存在
+    log_dir = os.path.dirname(log_file)
+    if not os.path.exists(log_dir):
+        try:
+            os.makedirs(log_dir)
+        except Exception as e:
+            print(f"Failed to create log directory {log_dir}: {e}")
+            return None
+    
+    # 格式化器
     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-
-    handler = logging.FileHandler(log_file)  # 创建一个FileHandler，用于写到本地
-    handler.setFormatter(formatter)  # 设置文件日志格式
-
-    console_handler = logging.StreamHandler()  # 创建一个StreamHandler，用于输出到控制台
-    console_handler.setFormatter(formatter)  # 设置控制台日志格式
-
+    
+    # 文件处理器
+    try:
+        handler = logging.FileHandler(log_file)
+        handler.setFormatter(formatter)
+    except Exception as e:
+        print(f"Failed to create file handler for {log_file}: {e}")
+        return None
+    
+    # 控制台处理器
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(formatter)
+    
+    # 日志记录器
     logger = logging.getLogger(name)
-    logger.setLevel(level)  # 设置日志级别
-
-    logger.addHandler(handler)  # 添加文件处理器
-    logger.addHandler(console_handler)  # 添加控制台处理器
-
+    logger.setLevel(level)
+    
+    # 避免重复添加处理器
+    if not any(isinstance(h, logging.FileHandler) for h in logger.handlers):
+        logger.addHandler(handler)
+    if not any(isinstance(h, logging.StreamHandler) for h in logger.handlers):
+        logger.addHandler(console_handler)
+    
     return logger
