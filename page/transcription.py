@@ -60,11 +60,15 @@ if audio_file:
             f.write(audio_file.getbuffer())
             audio_file_path = f'cache/{audio_file.name}'
         with st.spinner("识别中..."):
-            result = recognition(audio_in=audio_file_path, model=model_selector, model_revision=model_revision, vad_model=vad_model_selector,
-                                 vad_model_revision=vad_model_revision, punc_model=punc_model_selector, punc_model_revision=punc_model_revision,spk_model=speaker_model_selector,spk_model_revision=speaker_model_revision)
-            st.session_state.full_text, st.session_state.spk_text = organise_recognition(result)
-            save_output_result(st.session_state.full_text, st.session_state.spk_text, audio_file.name.split(".")[0])
-            os.remove(audio_file_path)
+            try:
+                result = recognition(audio_in=audio_file_path, model=model_selector, model_revision=model_revision, vad_model=vad_model_selector,
+                                    vad_model_revision=vad_model_revision, punc_model=punc_model_selector, punc_model_revision=punc_model_revision,spk_model=speaker_model_selector,spk_model_revision=speaker_model_revision)
+                st.session_state.full_text, st.session_state.spk_text = organise_recognition(result)
+                save_output_result(st.session_state.full_text, st.session_state.spk_text, audio_file.name.split(".")[0])
+                os.remove(audio_file_path)
+            except Exception as e:
+                st.error(e)
+                st.stop()
     col1, col2 = st.columns(2)
     with col1:
         with st.expander("完整识别结果"):

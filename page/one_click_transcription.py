@@ -54,7 +54,7 @@ def oc_ft(typo_prompt_lists, typo_prompt_seletor):
         else:
             raise ValueError("Unsupported LLM mode: " + system_config.get('llm_mode', 'Unknown'))
         
-        if response:
+        if response != '':
             st.session_state['oc_sm_in_text'] = response
         else:
             st.error("模型返回了空白结果，请检查各个参数以及是否爆内存/显存。")
@@ -79,7 +79,7 @@ def oc_sm(prompt_lists, prompt_selector):
         else:
             raise ValueError("Unsupported LLM mode: " + system_config.get('llm_mode', 'Unknown'))
         
-        if response:
+        if response != '':
             st.session_state['oc_sm_out_text'] = response
         else:
             st.error("模型返回了空白结果，请检查各个参数以及是否爆内存/显存。")
