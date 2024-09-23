@@ -31,6 +31,12 @@ cd SummaAudio
 setup.ps1
 ```
 
+如系统提示无法运行脚本时，请打开终端（管理员），输入如下内容，回车后选“是”：
+```powershell
+Set-Executionpolicy RemoteSigned
+```
+
+
 安装脚本会自动创建虚拟环境`.venv`，请手动选择合适的`Pytorch`版本（CUDA/CPU），非NVDIA用户，请选择CPU。
 
 ## 运行
