@@ -26,7 +26,7 @@ git clone https://github.com/ByronLeeeee/SummaAudio.git
 cd SummaAudio
 ```
 
-推荐使用一键安装脚本安装
+推荐使用一键安装脚本安装（Windows下右键选择“使用PowerShell运行”）
 ```bash
 setup.ps1
 ```
