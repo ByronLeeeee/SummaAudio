@@ -33,11 +33,11 @@ def get_modelscope_config():
 if 'audio_name' not in st.session_state:
     st.session_state.audio_name = ''
 
-if 'audio_full_text' not in st.session_state:
-    st.session_state.audio_name = ''
+if 'full_text' not in st.session_state:
+    st.session_state.full_text = ''
 
-if 'audio_spk_text' not in st.session_state:
-    st.session_state.audio_name = ''
+if 'spk_text' not in st.session_state:
+    st.session_state.spk_text = ''
 
 st.subheader("音频转录")
 st.sidebar.write("建议使用默认模型，随意搭配可能有不能预估的BUG")

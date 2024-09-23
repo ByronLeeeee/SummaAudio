@@ -54,7 +54,11 @@ def oc_ft(typo_prompt_lists, typo_prompt_seletor):
         else:
             raise ValueError("Unsupported LLM mode: " + system_config.get('llm_mode', 'Unknown'))
         
-        st.session_state['oc_sm_in_text'] = response
+        if response:
+            st.session_state['oc_sm_in_text'] = response
+        else:
+            st.error("模型返回了空白结果，请检查各个参数以及是否爆内存/显存。")
+            st.session_state['oc_sm_in_text'] = ""
 
 def oc_sm(prompt_lists, prompt_selector):
     original_text = st.session_state.oc_sm_in_text
@@ -75,7 +79,11 @@ def oc_sm(prompt_lists, prompt_selector):
         else:
             raise ValueError("Unsupported LLM mode: " + system_config.get('llm_mode', 'Unknown'))
         
-        st.session_state['oc_sm_out_text'] = response
+        if response:
+            st.session_state['oc_sm_out_text'] = response
+        else:
+            st.error("模型返回了空白结果，请检查各个参数以及是否爆内存/显存。")
+            st.session_state['oc_sm_out_text'] = ""
 
 def find_selected_prompt_content(prompt_lists, prompt_selector):
     try:
@@ -107,7 +115,7 @@ st.subheader("一键转录")
 
 with st.sidebar:
     st.write("配置")
-    needSpk = st.checkbox("区分说话人")
+    needSpk = st.checkbox("区分说话人",value=True)
     with st.expander("转录模型"):
         model_selector, model_revision, vad_model_selector, vad_model_revision, punc_model_selector, punc_model_revision, speaker_model_selector, speaker_model_revision = modolscope_model_selector()
     
@@ -129,7 +137,7 @@ with st.sidebar:
 
 
 with st.container(border=True):
-    audio_file = st.file_uploader("上传音频文件", type=["mp3", "wav", "flac"])
+    audio_file = st.file_uploader("上传音频文件", type=["mp3", "wav", "flac","m4a"])
     if audio_file:
         if st.session_state['oc_audio_name'] != audio_file.name:
             cleanup()

@@ -3,10 +3,9 @@ import streamlit as st
 import pyperclip
 import configparser
 import logging
-
+import os
 
 JSON_PATH = 'config/prompts.json'
-
 
 def load_prompt_json(section: str) -> list:
     with open(JSON_PATH, 'r', encoding="utf-8") as f:
@@ -15,43 +14,34 @@ def load_prompt_json(section: str) -> list:
     target_prompts = all_prompts_info[section]
     return target_prompts
 
-
 def get_prompts_details(section: str):
     prompt_list = load_prompt_json(section)
     return prompt_list
 
-
 def copy_text(text):
     pyperclip.copy(str(text))
     st.toast("结果已复制到剪贴板")
-
 
 def load_config(section: str):
     config = configparser.ConfigParser()
     config.read('config/config.ini', encoding='utf-8')
     return config[section]
 
-import logging
-
-import logging
-import os
-
-def setup_logger(name, log_file='logger/log.log', level=logging.INFO):
+def setup_logger(name, log_path='./logs', level=logging.INFO):
     """Function to create a logging object and set the level."""
     
     # 参数验证
-    if not isinstance(name, str) or not isinstance(log_file, str) or not isinstance(level, int):
+    if not isinstance(name, str) or not isinstance(log_path, str) or not isinstance(level, int):
         raise ValueError("Invalid parameter type.")
     
     # 确保日志文件所在的目录存在
-    log_dir = os.path.dirname(log_file)
-    if not os.path.exists(log_dir):
+    if not os.path.exists(log_path):
         try:
-            os.makedirs(log_dir)
+            os.makedirs(log_path)
         except Exception as e:
-            print(f"Failed to create log directory {log_dir}: {e}")
+            print(f"Failed to create log directory {log_path}: {e}")
             return None
-    
+    log_file = os.path.join(log_path, f"logs.log")
     # 格式化器
     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
     

@@ -19,7 +19,7 @@ with st.container():
     with col1:
         prompt_lists = get_prompts_details("fix_typo_prompt")
         prompt_titles = [prompt['title'] for prompt in prompt_lists]
-        prompt_seletor = st.selectbox("选择归纳模板:", prompt_titles)
+        prompt_seletor = st.selectbox("选择修正提示词模板:", prompt_titles)
         with st.expander("查看模板"):
             using_prompt = [prompt['content']
                             for prompt in prompt_lists if prompt['title'] == prompt_seletor][0]
@@ -45,8 +45,12 @@ with st.container():
         with st.spinner('修正中...'):
             final_prompt = using_prompt_textarea + text
             if load_config("SYSTEM")['llm_mode'] == 'ollama':
-                respone = st.write_stream(ollama_generate(final_prompt))
+                response = st.write_stream(ollama_generate(final_prompt))
             elif load_config("SYSTEM")['llm_mode'] == 'openai':
-                respone = st.write_stream(openai_generate(final_prompt))
-            st.session_state['ft_result'] = respone
-        st.button("复制结果", on_click=copy_text, args=(respone,))
+                response = st.write_stream(openai_generate(final_prompt))
+            if response:
+                st.session_state['ft_result'] = response
+            else:
+                st.error("模型返回了空白结果，请检查各个参数以及是否爆内存/显存。")
+                st.session_state['ft_result'] = ''
+        st.button("复制结果", on_click=copy_text, args=(response))

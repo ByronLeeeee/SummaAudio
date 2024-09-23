@@ -3,12 +3,17 @@ $OutputEncoding = [Console]::OutputEncoding = [Text.Encoding]::UTF8
 
 # 询问用户选择设备类型
 Write-Host "开始安装步骤，安装库耗时较长，请耐心等待。"
-$choice = Read-Host "请选择设备类型 (1: CUDA - 11.8, 2: CUDA - 12.1, 3: CUDA - 12.4, 4: CPU)"
+Write-Host "请选择设备类型："
+Write-Host "1. CUDA - 11.8"
+Write-Host "2. CUDA - 12.1"
+Write-Host "3. CUDA - 12.4"
+Write-Host "4. CPU"
+$choice = Read-Host "请填写相应序号："
 
 # 创建Python虚拟环境
-# Write-Host "正在创建Python虚拟环境..."
-# python -m venv .venv
-# Write-Host "创建Python虚拟环境完成！"
+Write-Host "正在创建Python虚拟环境..."
+python -m venv .venv
+Write-Host "创建Python虚拟环境完成！"
 
 # 激活虚拟环境
 Write-Host "正在激活Python虚拟环境..."
