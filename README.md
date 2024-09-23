@@ -67,4 +67,4 @@ streamlit run app.py
 欢迎随时提供反馈和建议。
 
 ## 开源协议
-本项目采用 GNU Affero通用公共许可证 (AGPL-3.0)。
+本项目采用[GPL-3.0](https://github.com/ByronLeeeee/SummaAudio/blob/main/README.md)协议。
