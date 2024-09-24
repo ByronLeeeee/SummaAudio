@@ -9,3 +9,4 @@ output/
 page/__pycache__/
 /logger
 /logs
+scripts/__pycache__/
