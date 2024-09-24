@@ -29,9 +29,9 @@ def recognition(audio_in, model, model_revision, vad_model, vad_model_revision, 
     :param spk_model_revision: 说话人识别模型版本
     :return: 识别结果列表
     """
-    cache_path = get_MODELSCOPE_config('MODELSCOPE_CACHE')
+    cache_path = get_MODELSCOPE_config('modelscope_cache')
     if not cache_path:
-        raise ValueError("MODELSCOPE_CACHE is not configured.")
+        raise ValueError("modelscope_cache is not configured.")
     os.environ["MODELSCOPE_CACHE"] = cache_path
 
     try:
