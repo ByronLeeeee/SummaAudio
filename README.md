@@ -18,7 +18,7 @@ LLM模型支持：
 ![setting](https://github.com/ByronLeeeee/SummaAudio/blob/main/screenshot/setting.jpg)
 
 ## 依赖
-` Python 3.8+`
+` Python 3.10+`
 
 ## 安装
 ```bash
