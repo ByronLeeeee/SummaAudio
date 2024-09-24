@@ -2,7 +2,7 @@
  
 ## 概览
 SummaAudio是一个基于Python的库，结合了[Modelscope](https://github.com/modelscope/modelscope)和LLM的能力，用于快速转录音频文件，并按需整理成文本。
-![honmepage](https://github.com/ByronLeeeee/SummaAudio/blob/main/screenshot/OneClick.jpg)
+![homepage](https://github.com/ByronLeeeee/SummaAudio/blob/main/screenshot/OneClick.jpg)
 
 常见应用场景：
 - **语音转文本**：高效将音频文件转换为文本，适用于语音识别、语音转写等场景。
@@ -26,12 +26,41 @@ git clone https://github.com/ByronLeeeee/SummaAudio.git
 cd SummaAudio
 ```
 
-推荐使用一键安装脚本安装
+#### 推荐使用一键安装脚本安装
 ```bash
 setup.ps1
 ```
 
 安装脚本会自动创建虚拟环境`.venv`，请手动选择合适的`Pytorch`版本（CUDA/CPU），非NVDIA用户，请选择CPU。
+
+![setup](https://github.com/ByronLeeeee/SummaAudio/blob/main/screenshot/setup.jpg)
+
+#### 手动安装方式
+```bash
+pip install -r requirements.txt
+```
+
+然后手动安装所需版本的Pytorch
+
+##### CPU
+```bash
+pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu --force-reinstall
+```
+
+
+##### CUDA(选择其中最适合版本)
+```bash
+# CUDA118
+pip install torch torchaudio --index-url https://download.pytorch.org/whl/cu118 --force-reinstall
+
+# CUDA121
+pip install torch torchaudio --index-url https://download.pytorch.org/whl/cu121 --force-reinstall
+
+# CUDA124
+pip install torch torchaudio --index-url https://download.pytorch.org/whl/cu124 --force-reinstall
+```
+
+
 
 ## 运行
 ```bash
