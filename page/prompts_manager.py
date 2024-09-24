@@ -47,7 +47,7 @@ def rewrite_data(updated_data):
 data = json_load()
 
 # 创建标签页
-fix_tab,summary_tab,  meeting_tab = st.tabs(["修正","归纳",  "会议记录"])
+fix_tab,summary_tab,  meeting_tab = st.tabs(["修正","摘要",  "会议记录"])
 
 # 在每个标签页中创建数据编辑器
 

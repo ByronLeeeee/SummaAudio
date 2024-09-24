@@ -101,14 +101,18 @@ def validate_system_config(config):
 def oc_audio_re():
     result = recognition(audio_in=audio_file_path, model=model_selector, model_revision=model_revision, vad_model=vad_model_selector,
                             vad_model_revision=vad_model_revision, punc_model=punc_model_selector, punc_model_revision=punc_model_revision,spk_model=speaker_model_selector,spk_model_revision=speaker_model_revision)
-    full_text, organise_text = organise_recognition(result)
-    if needSpk:
-        oc_audio_text = organise_text
-    else:
-        oc_audio_text = full_text
-    
-    st.session_state['oc_audio_text'] = oc_audio_text
-    st.session_state['oc_ft_in_text'] = oc_audio_text
+    try:
+        full_text, organise_text = organise_recognition(result)
+        if needSpk:
+            oc_audio_text = organise_text
+        else:
+            oc_audio_text = full_text
+        
+        st.session_state['oc_audio_text'] = oc_audio_text
+        st.session_state['oc_ft_in_text'] = oc_audio_text
+    except Exception as e:
+        st.error(f"An error occurred: {str(e)}")
+        st.stop()
 
 
 st.subheader("一键转录")
@@ -122,9 +126,9 @@ with st.sidebar:
     with st.expander("修正提示词"):
         typo_prompt_lists = get_prompts_details("fix_typo_prompt")
         typo_prompt_titles = [prompt['title'] for prompt in typo_prompt_lists]
-        typo_prompt_seletor = st.selectbox("选择归纳模板:", typo_prompt_titles)
+        typo_prompt_seletor = st.selectbox("选择修正模板:", typo_prompt_titles)
     
-    with st.expander("摘要/归纳提示词"):
+    with st.expander("归纳提示词"):
         summart_mode = st.selectbox("选择总结模式", ["摘要", "会议记录"])
         if summart_mode == "摘要":
             sm_prompt_lists = get_prompts_details("summary_prompt")
@@ -148,9 +152,13 @@ with st.container(border=True):
         st.audio(audio_file_path)
 
         if st.button("一键开始"):
+            print("开始识别")
             oc_audio_re()
+            print("开始修正")
             oc_ft(typo_prompt_lists,typo_prompt_seletor)
+            print("开始归纳")
             oc_sm(sm_prompt_lists,sm_prompt_seletor)
+            print("完成")
             os.remove(audio_file_path)
             st.rerun()
     
