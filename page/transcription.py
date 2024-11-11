@@ -39,6 +39,9 @@ if 'full_text' not in st.session_state:
 if 'spk_text' not in st.session_state:
     st.session_state.spk_text = ''
 
+
+
+
 st.subheader("音频转录")
 st.sidebar.write("建议使用默认模型，随意搭配可能有不能预估的BUG")
 model_sidebar = st.sidebar.expander("模型选择")
@@ -61,8 +64,13 @@ if audio_file:
             audio_file_path = f'cache/{audio_file.name}'
         with st.spinner("识别中..."):
             try:
-                result = recognition(audio_in=audio_file_path, model=model_selector, model_revision=model_revision, vad_model=vad_model_selector,
+                if model_selector == "iic/speech_paraformer-large-vad-punc_asr_nat-zh-cn-16k-common-vocab8404-pytorch":
+                    result = recognition(audio_in=audio_file_path, model=model_selector, model_revision=model_revision, vad_model=vad_model_selector,
                                     vad_model_revision=vad_model_revision, punc_model=punc_model_selector, punc_model_revision=punc_model_revision,spk_model=speaker_model_selector,spk_model_revision=speaker_model_revision)
+                else:
+                   result = recognition(audio_in=audio_file_path, model=model_selector, model_revision=model_revision, vad_model=vad_model_selector,
+                                    vad_model_revision=vad_model_revision, punc_model=punc_model_selector, punc_model_revision=punc_model_revision)
+
                 st.session_state.full_text, st.session_state.spk_text = organise_recognition(result)
                 save_output_result(st.session_state.full_text, st.session_state.spk_text, audio_file.name.split(".")[0])
                 os.remove(audio_file_path)

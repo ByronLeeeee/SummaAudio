@@ -5,6 +5,8 @@ import sys
 import json
 import os
 import streamlit as st
+from funasr.utils.postprocess_utils import rich_transcription_postprocess
+import re
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -14,7 +16,7 @@ def get_MODELSCOPE_config(config):
     return load_config('MODELSCOPE')[config]
 
 
-def recognition(audio_in, model, model_revision, vad_model, vad_model_revision, punc_model, punc_model_revision, spk_model, spk_model_revision) -> list:
+def recognition(audio_in, model, model_revision, vad_model, vad_model_revision, punc_model, punc_model_revision, spk_model=None, spk_model_revision=None) -> list:
     """
     使用指定的模型对音频进行识别，并返回识别结果。
 
@@ -36,17 +38,28 @@ def recognition(audio_in, model, model_revision, vad_model, vad_model_revision, 
 
     try:
         # 创建推理管道
-        inference_pipeline = pipeline(
-            task=Tasks.auto_speech_recognition,
-            model=model,
-            model_revision=model_revision,
-            vad_model=vad_model,
-            vad_model_revision=vad_model_revision,
-            punc_model=punc_model,
-            punc_model_revision=punc_model_revision,
-            spk_model=spk_model,
-            spk_model_revision=spk_model_revision,
-        )
+        if spk_model:
+            inference_pipeline = pipeline(
+                task=Tasks.auto_speech_recognition,
+                model=model,
+                model_revision=model_revision,
+                vad_model=vad_model,
+                vad_model_revision=vad_model_revision,
+                punc_model=punc_model,
+                punc_model_revision=punc_model_revision,
+                spk_model=spk_model,
+                spk_model_revision=spk_model_revision,
+            )
+        else:
+                inference_pipeline = pipeline(
+                task=Tasks.auto_speech_recognition,
+                model=model,
+                model_revision=model_revision,
+                vad_model=vad_model,
+                vad_model_revision=vad_model_revision,
+                punc_model=punc_model,
+                punc_model_revision=punc_model_revision,
+            )
 
         # 执行识别
         rec_result = inference_pipeline(audio_in)
@@ -78,6 +91,8 @@ def organise_recognition(result: list):
 
     result_info = result[0]
     full_text = result_info.get('text', "")
+    # 适配 SenseVoiceSmall
+    full_text = re.sub(r"< \| [\w\s]+ \| >", "\n", full_text)
     sentence_details = result_info.get('sentence_info', "")
 
     organised_text = ""

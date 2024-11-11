@@ -16,7 +16,10 @@ def get_model_list():
     base = config["base_url"]
     client = Client(host=base)
     model_list = client.list()
-    models = [model["name"] for model in model_list["models"]]
+    if [model["name"] for model in model_list["models"]] != []:
+        models = [model["name"] for model in model_list["models"]]
+    else:
+        models = []
     return models
 
 

@@ -3,6 +3,10 @@
         {
             "model": "iic/speech_paraformer-large-vad-punc-spk_asr_nat-zh-cn",
             "revision": "v2.0.4"
+        },
+        {
+            "model": "iic/SenseVoiceSmall",
+            "revision": "master"
         }
     ],
     "vad_models":[

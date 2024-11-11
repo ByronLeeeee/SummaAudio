@@ -50,8 +50,11 @@ with modelscope_setting:
 
 with ollama_setting:
     ollama_base = st.text_input("Ollama URL", config['OLLAMA']['base_url'])
-    ollama_model = st.selectbox("Ollama模型", ollama_scripts.get_model_list(), index=ollama_scripts.get_model_list(
+    try:
+        ollama_model = st.selectbox("Ollama模型", ollama_scripts.get_model_list(), index=ollama_scripts.get_model_list(
     ).index(config['OLLAMA']['model']) if config['OLLAMA']['model'] != "" else 0)
+    except:
+        ollama_model = st.selectbox("Ollama模型", ollama_scripts.get_model_list())
     ollama_max_tokens = st.text_input(
         "Ollama Tokens上限", config['OLLAMA']['max_tokens'])
     ollama_temperature = st.slider(

@@ -6,7 +6,7 @@ openai
 python-dotenv
 funasr
 addict
-datasets
+datasets==2.21.0
 pybind11
 numpy
 simplejson
