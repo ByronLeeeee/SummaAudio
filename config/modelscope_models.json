@@ -3,6 +3,10 @@
         {
             "model": "iic/speech_paraformer-large-vad-punc-spk_asr_nat-zh-cn",
             "revision": "v2.0.4"
+        },
+        {
+            "model": "iic/SenseVoiceSmall",
+            "revision": "master"
         }
     ],
     "vad_models":[
@@ -15,12 +19,20 @@
         {
             "model": "iic/punc_ct-transformer_cn-en-common-vocab471067-large",
             "revision": "v2.0.4"
+        },
+        {
+            "model": "",
+            "revision": ""
         }
     ],
     "speaker_models":[
         {
             "model": "iic/speech_campplus_sv_zh-cn_16k-common",
             "revision": "v2.0.2"
+        },
+        {
+            "model": "",
+            "revision": ""
         }
     ]
 

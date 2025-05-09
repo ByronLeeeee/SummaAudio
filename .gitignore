@@ -7,3 +7,4 @@ model/
 test/
 output/
 page/__pycache__/
+logger/
