@@ -4,6 +4,7 @@ import pyperclip
 import configparser
 import logging
 import os
+import re
 
 # Define constants for paths
 CONFIG_DIR = "config"
@@ -93,3 +94,29 @@ def setup_logger(name: str, log_filename: str = DEFAULT_LOG_FILE, level=logging.
         logger.addHandler(console_handler)
 
     return logger
+
+def extract_and_clean_think_tags(text_with_tags: str) -> tuple[str, str]:
+    """
+    从文本中提取所有 <think>...</think> 标签的内容，并返回清理后的文本和提取的思考内容。
+
+    :param text_with_tags: 包含 <think> 标签的原始文本。
+    :return: 一个元组 (cleaned_text, thoughts_text)，
+             其中 cleaned_text 是移除了 <think> 标签及其内容的文本，
+             thoughts_text 是所有提取到的思考内容（用换行符连接，如果没有则为空字符串）。
+    """
+    if not text_with_tags:
+        return "", ""
+
+    thoughts_list = []
+    # 使用非贪婪模式 (.*?) 来匹配标签内容，并使用 re.DOTALL 使 . 匹配换行符
+    pattern = r"<think>(.*?)</think>"
+
+    def extract_thought(match):
+        thoughts_list.append(match.group(1).strip())
+        return ""  # 用空字符串替换匹配到的 <think>...</think> 块
+
+    cleaned_text = re.sub(pattern, extract_thought, text_with_tags, flags=re.DOTALL | re.IGNORECASE)
+    
+    thoughts_text = "\n\n---\n\n".join(thoughts_list) # 用分隔符连接多个思考块
+    
+    return cleaned_text.strip(), thoughts_text.strip()
