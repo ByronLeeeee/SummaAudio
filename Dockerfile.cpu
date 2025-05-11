@@ -1,0 +1,50 @@
+# Base image with Python
+FROM python:3.10-slim
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=off \
+    PIP_DISABLE_PIP_VERSION_CHECK=on \
+    PIP_DEFAULT_TIMEOUT=100 \
+    POETRY_VERSION=1.7.1 \
+    # Set ModelScope cache directory if needed globally, or manage via config.ini
+    MODELSCOPE_CACHE=/app/modelscope_cache 
+
+# Install system dependencies that might be needed by some Python packages
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    ffmpeg \
+    libsndfile1 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy requirements.txt first to leverage Docker cache
+COPY requirements.txt .
+
+# Install PyTorch for CPU
+# Find compatible versions from https://pytorch.org/get-started/previous-versions/
+RUN pip install torch==2.1.2+cpu torchaudio==2.1.2+cpu -f https://download.pytorch.org/whl/torch_stable.html
+
+# Install other dependencies
+RUN pip install -r requirements.txt
+
+# Copy the rest of the application code
+COPY . .
+
+# Create necessary directories if they are not created by the app on startup.
+# The app creates most of these, but config needs to exist if we copy files into it.
+RUN mkdir -p cache logger transcription_results config ${MODELSCOPE_CACHE}
+# Note: config.ini, prompts.json, modelscope_models.json, openai.json should be
+# either part of the image (COPY them here) or mounted as volumes when running.
+COPY config/ /app/config/
+
+# Ensure the output directory for ModelScope results exists, as defined in default config
+RUN mkdir -p /app/transcription_results
+
+# Expose Streamlit port
+EXPOSE 8501
+
+# Command to run the Streamlit application
+# The --server.address=0.0.0.0 makes it accessible externally
+CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]

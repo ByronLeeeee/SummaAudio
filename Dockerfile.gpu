@@ -1,0 +1,62 @@
+# Base image with CUDA support. Choose a version compatible with your PyTorch version.
+# For PyTorch 2.1.2, CUDA 11.8 or CUDA 12.1 are common choices.
+FROM nvidia/cuda:11.8.0-cudnn8-devel-ubuntu22.04
+# Using -devel image as it includes compilers needed for some pip installs.
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=off \
+    PIP_DISABLE_PIP_VERSION_CHECK=on \
+    PIP_DEFAULT_TIMEOUT=100 \
+    POETRY_VERSION=1.7.1 \
+    PATH="/root/.local/bin:${PATH}" \
+    # Set ModelScope cache directory if needed globally, or manage via config.ini
+    MODELSCOPE_CACHE=/app/modelscope_cache \
+    NVIDIA_DRIVER_CAPABILITIES=compute,utility \
+    NVIDIA_VISIBLE_DEVICES=all
+
+
+# Install Python, pip, and other system dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    python3.10 \
+    python3-pip \
+    python3.10-venv \
+    build-essential \
+    ffmpeg \
+    libsndfile1 \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Make python3.10 the default python and pip
+RUN ln -s /usr/bin/python3.10 /usr/bin/python && \
+    ln -s /usr/bin/pip3 /usr/bin/pip
+
+WORKDIR /app
+
+# Copy requirements.txt first
+COPY requirements.txt .
+
+# Install PyTorch for CUDA 11.8
+# Ensure this matches the CUDA version in the FROM line
+RUN pip install torch==2.1.2+cu118 torchaudio==2.1.2+cu118 -f https://download.pytorch.org/whl/torch_stable.html
+
+# Install other dependencies
+RUN pip install -r requirements.txt
+
+# Copy the rest of the application code
+COPY . .
+
+# Create necessary directories
+RUN mkdir -p cache logger transcription_results config ${MODELSCOPE_CACHE}
+COPY config/ /app/config/
+
+# Ensure the output directory for ModelScope results exists
+RUN mkdir -p /app/transcription_results
+
+
+# Expose Streamlit port
+EXPOSE 8501
+
+# Command to run the Streamlit application
+CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
