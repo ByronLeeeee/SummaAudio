@@ -4,7 +4,6 @@ pyperclip
 configparser
 modelscope
 funasr
-logging
 librosa
 soundfile
 typeguard
