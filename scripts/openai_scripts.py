@@ -1,5 +1,4 @@
 from openai import OpenAI
-from dotenv import load_dotenv, find_dotenv
 import os
 import sys
 import json
@@ -11,22 +10,31 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from scripts.utils import CONFIG_INI_PATH  # Use defined constant
 
 CONFIG_DIR = "config"
-OPENAI_CONFIG_JSON_FILE = "openai.json"
+OPENAI_CONFIG_JSON_FILE = "openai.json" # This file will now store API keys too
 OPENAI_JSON_PATH = os.path.join(CONFIG_DIR, OPENAI_CONFIG_JSON_FILE)
 
 
 def set_openai_client(model_name: str) -> OpenAI:
     """
-    根据模型名称设置并返回OpenAI客户端。
+    根据模型名称设置并返回OpenAI兼容客户端。
+    API Key 和 Base URL 从 openai.json 读取。
 
-    :param model_name: str, 使用的OpenAI模型名称.
-    :return: OpenAI, 配置好的OpenAI客户端实例.
-    :raises ValueError: 如果模型配置未找到.
+    :param model_name: str, 使用的模型名称.
+    :return: OpenAI, 配置好的客户端实例.
+    :raises ValueError: 如果模型配置未找到或不完整.
     """
-    load_dotenv(find_dotenv(usecwd=True))  # Ensure .env is loaded from project root
+    try:
+        with open(OPENAI_JSON_PATH, "r", encoding="utf-8") as f:
+            openai_settings = json.load(f)
+    except FileNotFoundError:
+        raise ValueError(
+            f"在线模型配置文件 '{OPENAI_JSON_PATH}' 未找到。"
+        )
+    except json.JSONDecodeError:
+        raise ValueError(
+            f"在线模型配置文件 '{OPENAI_JSON_PATH}' 格式错误。"
+        )
 
-    with open(OPENAI_JSON_PATH, "r", encoding="utf-8") as f:
-        openai_settings = json.load(f)
 
     model_config = next(
         (
@@ -38,26 +46,22 @@ def set_openai_client(model_name: str) -> OpenAI:
     )
     if not model_config:
         raise ValueError(
-            f"Model configuration for '{model_name}' not found in '{OPENAI_JSON_PATH}'."
+            f"模型 '{model_name}' 的配置未在 '{OPENAI_JSON_PATH}' 中找到。"
         )
 
-    # Construct the environment variable name for the API key
-    # e.g., "gpt-3.5-turbo" -> "GPT_3_5_TURBO_API_KEY"
-    api_key_env_var = (
-        f"{model_name.upper().replace('-', '_').replace('.', '_')}_API_KEY"
-    )
-    api_key = os.getenv(api_key_env_var)
+    api_key = model_config.get("api_key")
+    base_url = model_config.get("base_url")
 
     if not api_key:
         raise ValueError(
-            f"API key environment variable '{api_key_env_var}' not set for model '{model_name}'."
+            f"模型 '{model_name}' 的 API Key 未在 '{OPENAI_JSON_PATH}' 中配置。"
         )
-    if not model_config.get("base_url"):
+    if not base_url:
         raise ValueError(
-            f"Base URL not configured for model '{model_name}' in '{OPENAI_JSON_PATH}'."
+            f"模型 '{model_name}' 的 Base URL 未在 '{OPENAI_JSON_PATH}' 中配置。"
         )
 
-    client = OpenAI(base_url=model_config["base_url"], api_key=api_key)
+    client = OpenAI(base_url=base_url, api_key=api_key)
     return client
 
 
@@ -77,32 +81,32 @@ def get_openai_model_names() -> list[str]:
         ]
         return models
     except FileNotFoundError:
-        # st.error(f"OpenAI configuration file not found: {OPENAI_JSON_PATH}") # Avoid st in backend scripts
-        print(f"Error: OpenAI configuration file not found: {OPENAI_JSON_PATH}")
+        print(f"错误: 在线模型配置文件 '{OPENAI_JSON_PATH}' 未找到。")
         return []
     except Exception as e:
-        print(f"Error reading OpenAI model list: {e}")
+        print(f"读取在线模型列表错误: {e}")
         return []
 
 
 def generate_openai_completion(prompt: str, model_name: str):
     """
-    使用OpenAI生成文本补全（流式）。
+    使用OpenAI兼容模型生成文本补全（流式）。
 
     :param prompt: str, 输入给模型的提示.
-    :param model_name: str, 要使用的OpenAI模型名称.
+    :param model_name: str, 要使用的模型名称.
     :return: 生成器, 逐块产生生成的文本.
     """
-    client = set_openai_client(model_name)
+    client = set_openai_client(model_name) # This will now use API key from JSON
     config = configparser.ConfigParser()
     config.read(CONFIG_INI_PATH, encoding="utf-8")
 
+    # [OPENAI] section in config.ini stores default parameters for OpenAI-compatible APIs
     if "OPENAI" not in config:
-        raise ValueError(f"Section 'OPENAI' not found in '{CONFIG_INI_PATH}'.")
+        raise ValueError(f"区域 'OPENAI' 未在 '{CONFIG_INI_PATH}' 中找到，无法获取补全参数。")
 
     options_settings = config["OPENAI"]
     temperature = float(options_settings.get("temperature", 0.7))
-    max_tokens = int(options_settings.get("max_tokens", 2560))  # Increased default
+    max_tokens = int(options_settings.get("max_tokens", 2560))
     top_p = float(options_settings.get("top_p", 1.0))
 
     response_stream = client.completions.create(
@@ -120,124 +124,92 @@ def generate_openai_completion(prompt: str, model_name: str):
 
 def update_openai_model_info(model_info_list: list[dict]) -> bool:
     """
-    更新OpenAI模型配置信息（JSON文件和.env文件）。
+    更新在线模型配置信息（model, base_url, api_key）到 openai.json 文件。
 
     :param model_info_list: list[dict], 包含模型信息的字典列表.
+                           每个字典应包含 'model', 'base_url', 'api_key'.
     :return: bool, 操作是否成功.
     :raises Exception: 如果保存过程中发生错误.
     """
     try:
-        # Load existing settings to preserve other potential data
+        # Load existing settings to preserve other potential data not related to "models"
         try:
             with open(OPENAI_JSON_PATH, "r", encoding="utf-8") as f:
                 openai_settings = json.load(f)
         except FileNotFoundError:
             openai_settings = {}  # Create new if not exists
+        except json.JSONDecodeError:
+            # If JSON is corrupted, start fresh but warn user or log
+            print(f"警告: '{OPENAI_JSON_PATH}' 格式错误，将创建新的配置。")
+            openai_settings = {}
+
 
         new_model_config_list = []
         for model_entry in model_info_list:
             # Basic validation
-            if not model_entry.get("model") or not model_entry.get(
-                "base_url"
-            ):  # API key can be empty if not immediately set
-                raise ValueError("Each model entry must have 'model' and 'base_url'.")
+            if not model_entry.get("model") or not model_entry.get("base_url"):
+                 # API key can be optional if a model doesn't require it, though most do.
+                 # For consistency, we'll expect it, but it could be an empty string.
+                raise ValueError("每个模型条目必须包含 'model' 和 'base_url'。API Key 也建议填写。")
 
             update_model = {
-                "model": model_entry.get("model"),
-                "base_url": model_entry.get("base_url"),
-                # API key is not stored in openai.json, but in .env
+                "model": model_entry.get("model").strip(),
+                "base_url": model_entry.get("base_url").strip(),
+                "api_key": model_entry.get("api_key", "").strip(), # Store API key directly
             }
             new_model_config_list.append(update_model)
 
         openai_settings["models"] = new_model_config_list
 
+        # Ensure config directory exists
+        os.makedirs(CONFIG_DIR, exist_ok=True)
+        
         with open(OPENAI_JSON_PATH, "w", encoding="utf-8") as f:
             json.dump(openai_settings, f, indent=4, ensure_ascii=False)
-
-        env_path = find_dotenv(usecwd=True, raise_error_if_not_found=False)
-        if not env_path:
-            # If .env file doesn't exist, create one in the current working directory (project root)
-            env_path = os.path.join(os.getcwd(), ".env")
-            with open(env_path, "w") as f:  # Create empty .env
-                pass
-
-        # Load all existing env variables
-        env_vars = {}
-        if os.path.exists(env_path):
-            with open(env_path, "r") as env_file:
-                for line in env_file:
-                    line = line.strip()
-                    if line and "=" in line and not line.startswith("#"):
-                        key, value = line.split("=", 1)
-                        env_vars[key.strip()] = value.strip()
-
-        # Update or add API keys from the input model_info_list
-        for model_data in model_info_list:
-            model_name = model_data.get("model", "")
-            api_key = model_data.get("api_key", "")
-            if model_name and api_key:  # Only write if API key is provided
-                env_key_name = (
-                    f"{model_name.upper().replace('-', '_').replace('.', '_')}_API_KEY"
-                )
-                env_vars[env_key_name] = api_key
-            elif (
-                model_name and not api_key
-            ):  # If API key is empty, remove it or ensure it's not written if new
-                env_key_name = (
-                    f"{model_name.upper().replace('-', '_').replace('.', '_')}_API_KEY"
-                )
-                if env_key_name in env_vars:
-                    del env_vars[env_key_name]
-
-        # Rewrite the .env file with updated keys
-        with open(env_path, "w") as env_file:
-            for key, value in env_vars.items():
-                env_file.write(f"{key}={value}\n")
-
-        load_dotenv(dotenv_path=env_path, override=True)  # Reload environment variables
+        
         return True
     except Exception as e:
-        raise Exception(f"保存错误: {e}")
+        # Consider logging this error instead of raising generic Exception
+        # For now, re-raise with a message
+        raise Exception(f"保存在线模型配置错误: {e}")
 
 
 def get_openai_model_info() -> list[dict]:
     """
-    获取所有已配置的OpenAI模型及其API密钥（从.env文件）和URL（从JSON文件）。
+    获取所有已配置的在线模型及其API密钥和URL（从openai.json文件）。
 
-    :return: list[dict], 模型信息列表.
+    :return: list[dict], 模型信息列表, 每个字典包含 'model', 'base_url', 'api_key'.
     :raises Exception: 如果获取信息时发生错误.
     """
     try:
         model_info_list = []
-        load_dotenv(find_dotenv(usecwd=True))  # Ensure .env is loaded
-
         try:
             with open(OPENAI_JSON_PATH, "r", encoding="utf-8") as f:
                 openai_models_config = json.load(f).get("models", [])
         except FileNotFoundError:
             openai_models_config = []
             print(
-                f"Warning: OpenAI configuration file '{OPENAI_JSON_PATH}' not found. No models loaded."
+                f"警告: 在线模型配置文件 '{OPENAI_JSON_PATH}' 未找到。无模型加载。"
             )
+        except json.JSONDecodeError:
+            openai_models_config = []
+            print(
+                f"警告: 在线模型配置文件 '{OPENAI_JSON_PATH}' 格式错误。无模型加载。"
+            )
+
 
         for model_conf in openai_models_config:
             model_name = model_conf.get("model")
             if not model_name:
                 continue
 
-            api_key_env_var = (
-                f"{model_name.upper().replace('-', '_').replace('.', '_')}_API_KEY"
-            )
-
             model_info = {
                 "model": model_name,
-                "base_url": model_conf.get("base_url"),
-                "api_key": os.getenv(
-                    api_key_env_var, ""
-                ),  # Default to empty string if not found
+                "base_url": model_conf.get("base_url", ""),
+                "api_key": model_conf.get("api_key", ""), # Get API key from JSON
             }
             model_info_list.append(model_info)
 
         return model_info_list
     except Exception as e:
-        raise Exception(f"获取模型信息错误: {e}")
+        raise Exception(f"获取在线模型信息错误: {e}")

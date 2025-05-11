@@ -1,15 +1,9 @@
-streamlit
 openai
-python-dotenv
 requests
 pyperclip
 configparser
 modelscope
-funasr              
-torch      
-torchvision       
-torchaudio          
-tensorflow          
+funasr
 logging
 librosa
 soundfile
@@ -18,3 +12,5 @@ addict
 datasets == 2.16
 simplejson
 sortedcontainers
+streamlit
+numpy==1.26.4

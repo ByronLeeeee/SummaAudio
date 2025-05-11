@@ -2,7 +2,8 @@
     "models": [
         {
             "model": "foo",
-            "base_url": "http://foo.bar"
+            "base_url": "http://foo.bar",
+            "api_key": "1234567890"
         }
     ]
 }

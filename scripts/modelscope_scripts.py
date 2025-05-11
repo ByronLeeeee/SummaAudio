@@ -70,6 +70,7 @@ def run_modelscope_recognition(
             punc_model_revision=punc_model_revision,
             spk_model=spk_model_id,
             spk_model_revision=spk_model_revision,
+            disable_update=True
         )
         rec_result = inference_pipeline(audio_input_path)
         return rec_result if rec_result else []

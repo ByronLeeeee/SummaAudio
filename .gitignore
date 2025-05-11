@@ -8,3 +8,6 @@ test/
 output/
 page/__pycache__/
 logger/
+
+# uv
+uv.lock
