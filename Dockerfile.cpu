@@ -8,7 +8,7 @@ ENV PYTHONUNBUFFERED=1 \
     PIP_DEFAULT_TIMEOUT=100 \
     POETRY_VERSION=1.7.1 \
     # Set ModelScope cache directory if needed globally, or manage via config.ini
-    MODELSCOPE_CACHE=/app/modelscope_cache 
+    MODELSCOPE_CACHE=/app/modelscope_cache
 
 # Install system dependencies that might be needed by some Python packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -18,6 +18,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
+
+# Upgrade pip, setuptools, and wheel BEFORE installing other packages
+RUN python -m pip install --upgrade pip setuptools wheel
 
 # Copy requirements.txt first to leverage Docker cache
 COPY requirements.txt .
@@ -35,6 +38,7 @@ COPY . .
 # Create necessary directories if they are not created by the app on startup.
 # The app creates most of these, but config needs to exist if we copy files into it.
 RUN mkdir -p cache logger transcription_results config ${MODELSCOPE_CACHE}
+
 # Note: config.ini, prompts.json, modelscope_models.json, openai.json should be
 # either part of the image (COPY them here) or mounted as volumes when running.
 COPY config/ /app/config/

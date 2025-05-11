@@ -15,7 +15,6 @@ ENV PYTHONUNBUFFERED=1 \
     NVIDIA_DRIVER_CAPABILITIES=compute,utility \
     NVIDIA_VISIBLE_DEVICES=all
 
-
 # Install Python, pip, and other system dependencies
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -29,10 +28,15 @@ RUN apt-get update && \
     && rm -rf /var/lib/apt/lists/*
 
 # Make python3.10 the default python and pip
-RUN ln -s /usr/bin/python3.10 /usr/bin/python && \
-    ln -s /usr/bin/pip3 /usr/bin/pip
+# Use -sf to force link creation, overwriting if they exist
+RUN ln -sf /usr/bin/python3.10 /usr/bin/python && \
+    ln -sf /usr/bin/pip3 /usr/bin/pip
 
 WORKDIR /app
+
+# Upgrade pip, setuptools, and wheel BEFORE installing other packages
+# Use 'python' and 'pip' which are now symlinked
+RUN python -m pip install --upgrade pip setuptools wheel
 
 # Copy requirements.txt first
 COPY requirements.txt .
@@ -53,7 +57,6 @@ COPY config/ /app/config/
 
 # Ensure the output directory for ModelScope results exists
 RUN mkdir -p /app/transcription_results
-
 
 # Expose Streamlit port
 EXPOSE 8501
