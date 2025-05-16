@@ -43,7 +43,7 @@ COPY requirements.txt .
 
 # Install PyTorch for CUDA 11.8
 # Ensure this matches the CUDA version in the FROM line
-RUN pip install torch==2.1.2+cu118 torchaudio==2.1.2+cu118 -f https://download.pytorch.org/whl/torch_stable.html
+RUN pip install torch>=2.1.2+cu118 torchaudio>=2.1.2+cu118 torchvision>=0.8+cu118 -f https://download.pytorch.org/whl/torch_stable.html
 
 # Install other dependencies
 RUN pip install -r requirements.txt

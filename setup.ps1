@@ -33,20 +33,20 @@ Write-Host "依赖安装完成！"
 
 # 根据用户选择安装对应版本的PyTorch和torchaudio
 if ($choice -eq "1") {
-    Write-Host "正在安装CUDA118版本的PyTorch和torchaudio..."
-    pip install torch torchaudio --index-url https://download.pytorch.org/whl/cu118 --force-reinstall
+    Write-Host "正在安装CUDA118版本的PyTorch/torchaudio/torchvision..."
+    pip install torch torchaudio torchvision --index-url https://download.pytorch.org/whl/cu118 --force-reinstall
 }
 elseif ($choice -eq "2") {
-    Write-Host "正在安装CUDA121版本的PyTorch和torchaudio..."
-    pip install torch torchaudio --index-url https://download.pytorch.org/whl/cu121 --force-reinstall
+    Write-Host "正在安装CUDA121版本的PyTorch/torchaudio/torchvision..."
+    pip install torch torchaudio torchvision --index-url https://download.pytorch.org/whl/cu121 --force-reinstall
 }
 elseif ($choice -eq "3") {
-    Write-Host "正在安装CUDA124版本的PyTorch和torchaudio..."
-    pip install torch torchaudio --index-url https://download.pytorch.org/whl/cu124 --force-reinstall
+    Write-Host "正在安装CUDA124版本的PyTorch/torchaudio/torchvision..."
+    pip install torch torchaudio torchvision --index-url https://download.pytorch.org/whl/cu124 --force-reinstall
 }
 elseif ($choice -eq "4") {
-    Write-Host "正在安装CPU版本的PyTorch和torchaudio..."
-    pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu --force-reinstall
+    Write-Host "正在安装CPU版本的PyTorch/torchaudio/torchvision..."
+    pip install torch torchaudio torchvision --index-url https://download.pytorch.org/whl/cpu --force-reinstall
 }
 else {
     Write-Host "无效的选择，脚本将退出。" 
