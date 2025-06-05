@@ -49,12 +49,25 @@ with st.container(border=True):
             edited_prompt_content = st.text_area(
                 "模板内容:", 
                 value=current_default_prompt_content, 
-                height=200,
+                height=250,
                 key="fix_typo_edited_prompt"
             )
 
     with col2:
-        text_to_fix = st.text_area("待修正文本:", height=300, key="ft_text_input")
+        if st.session_state.get('transcription_speaker_text'):
+            use_transcription_text = st.radio(
+                "使用上一页的转录结果？",
+                options=["是", "否"],
+                index=1,  # 默认选择“否”
+                horizontal=True,
+                key="use_transcription_text"
+            )
+            if use_transcription_text == "是":
+                text_to_fix = st.text_area("待修正文本:", height=300, key="ft_text_input",value=st.session_state.transcription_speaker_text)
+            else:
+                text_to_fix = st.text_area("待修正文本:", height=300, key="ft_text_input")
+        else:
+            text_to_fix = st.text_area("待修正文本:", height=300, key="ft_text_input")
 
 
 with st.container():
