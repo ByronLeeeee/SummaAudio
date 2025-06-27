@@ -90,36 +90,42 @@ def get_openai_model_names() -> list[str]:
 
 def generate_openai_completion(prompt: str, model_name: str):
     """
-    使用OpenAI兼容模型生成文本补全（流式）。
+    使用OpenAI兼容的 Chat Completions API 生成文本补全（流式）。
 
-    :param prompt: str, 输入给模型的提示.
-    :param model_name: str, 要使用的模型名称.
-    :return: 生成器, 逐块产生生成的文本.
+    :param prompt: str, 用户的完整输入提示。
+    :param model_name: str, 要使用的模型名称。
+    :return: 生成器, 逐块产生生成的文本。
     """
-    client = set_openai_client(model_name) # This will now use API key from JSON
-    config = configparser.ConfigParser()
-    config.read(CONFIG_INI_PATH, encoding="utf-8")
+    try:
+        client = set_openai_client(model_name)
+        config = configparser.ConfigParser()
+        config.read(CONFIG_INI_PATH, encoding="utf-8")
 
-    # [OPENAI] section in config.ini stores default parameters for OpenAI-compatible APIs
-    if "OPENAI" not in config:
-        raise ValueError(f"区域 'OPENAI' 未在 '{CONFIG_INI_PATH}' 中找到，无法获取补全参数。")
+        if "OPENAI" not in config:
+            raise ValueError(f"区域 'OPENAI' 未在 '{CONFIG_INI_PATH}' 中找到。")
 
-    options_settings = config["OPENAI"]
-    temperature = float(options_settings.get("temperature", 0.7))
-    max_tokens = int(options_settings.get("max_tokens", 2560))
-    top_p = float(options_settings.get("top_p", 1.0))
+        options_settings = config["OPENAI"]
+        temperature = float(options_settings.get("temperature", 0.7))
+        max_tokens = int(options_settings.get("max_tokens", 2560))
+        top_p = float(options_settings.get("top_p", 1.0))
 
-    response_stream = client.completions.create(
-        model=model_name,
-        prompt=prompt,
-        temperature=temperature,
-        max_tokens=max_tokens,
-        top_p=top_p,
-        stream=True,
-    )
-    for part in response_stream:
-        if part.choices and len(part.choices) > 0 and part.choices[0].text:
-            yield part.choices[0].text
+        response_stream = client.chat.completions.create(
+            model=model_name,
+            messages=[
+                {"role": "user", "content": prompt}
+            ],
+            temperature=temperature,
+            max_tokens=max_tokens,
+            top_p=top_p,
+            stream=True,
+        )
+
+        for part in response_stream:
+            if part.choices and len(part.choices) > 0 and part.choices[0].delta and part.choices[0].delta.content:
+                yield part.choices[0].delta.content
+    
+    except Exception as e:
+        yield f"处理OpenAI响应时发生错误: {e}"
 
 
 def update_openai_model_info(model_info_list: list[dict]) -> bool:
